@@ -35,28 +35,34 @@ export class Movies extends Component {
     this.setState({ currentPage: page });
   };
 
-  handleGenreSelect = (genre) => {};
+  handleGenreSelect = (genre) => {
+    this.setState({ selectedGenre: genre });
+  };
 
   render() {
     const { length: count } = this.state.movies;
-    const { currentPage, pageSize, movies } = this.state;
+    const { currentPage, pageSize, selectedGenre, movies } = this.state;
 
     if (count === 0) {
       return <p>There are no movies in the database.</p>;
     }
 
-    const moviesToShow = paginate(movies, currentPage, pageSize);
+    const filtered = selectedGenre
+      ? movies.filter((m) => m.genre._id === selectedGenre._id)
+      : movies;
+    const moviesToShow = paginate(filtered, currentPage, pageSize);
 
     return (
       <div className="row">
         <div className="col-3">
           <ListGroup
             items={this.state.genres}
+            selectedItem={this.state.selectedGenre}
             onItemSelect={this.handleGenreSelect}
           />
         </div>
         <div className="col">
-          <p>Showing {count} movies in the database.</p>
+          <p>Showing {filtered.length} movies in the database.</p>
           <table className="table">
             <thead>
               <tr>
@@ -94,7 +100,7 @@ export class Movies extends Component {
             </tbody>
           </table>
           <Pagination
-            itemsCount={count}
+            itemsCount={filtered.length}
             pageSize={pageSize}
             currentPage={currentPage}
             onPageChange={this.handlePageChange}
